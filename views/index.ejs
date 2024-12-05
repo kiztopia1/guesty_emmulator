@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Interface</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f0f0f0;
+      }
+      .chat-container {
+        margin-top: 50px;
+        width: 80%;
+        max-width: 600px;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .messages {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      .message {
+        margin: 5px 0;
+      }
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .input-group input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      .input-group button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .input-group button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="messages" id="messages">
+        <!-- Chat messages will appear here -->
+      </div>
+      <div class="input-group">
+        <input type="text" id="guestInput" placeholder="Guest message" />
+        <button onclick="sendGuestMessage()">Send as Guest</button>
+      </div>
+      <div class="input-group">
+        <input type="text" id="hostInput" placeholder="Host message" />
+        <button onclick="sendHostMessage()">Send as Host</button>
+      </div>
+    </div>
+
+    <script>
+      const messagesContainer = document.getElementById("messages");
+
+      // Function to fetch and display all conversations
+      async function fetchConversations() {
+        try {
+          const response = await fetch("/api/conversations");
+          const conversations = await response.json();
+
+          // Clear the current messages
+          messagesContainer.innerHTML = "";
+
+          // Append each conversation to the chat interface
+          conversations.forEach((convo) => {
+            const div = document.createElement("div");
+            div.classList.add("message");
+            div.textContent = `${convo.sentBy}: ${convo.body} `;
+            messagesContainer.appendChild(div);
+          });
+
+          // Scroll to the latest message
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+          console.error("Error fetching conversations:", error.message);
+        }
+      }
+
+      // Poll the conversations every 2 seconds
+      setInterval(fetchConversations, 5000);
+
+      // Send a guest message
+      async function sendGuestMessage() {
+        const input = document.getElementById("guestInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        input.value = "";
+
+        await fetch("/api/guest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        // Fetch updated conversations
+        fetchConversations();
+      }
+
+      // Send a host message
+      async function sendHostMessage() {
+        const input = document.getElementById("hostInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        input.value = "";
+
+        await fetch("/api/host", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        // Fetch updated conversations
+        fetchConversations();
+      }
+
+      // Initial fetch
+      fetchConversations();
+    </script>
+  </body>
+</html>
