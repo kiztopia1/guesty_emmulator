@@ -1,8 +1,9 @@
-const express = require("express");
-const { fileURLToPath } = require("url");
-const path = require("path");
-const axios = require("axios");
-const PocketBase = require("pocketbase/cjs");
+import express from "express";
+
+import { fileURLToPath } from "url";
+import path from "path";
+import axios from "axios";
+import PocketBase from "pocketbase";
 
 const app = express();
 
@@ -10,8 +11,8 @@ const PORT = 3000;
 
 const pb = new PocketBase("https://gues.pockethost.io");
 // Set EJS as the templating engine
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -244,4 +245,4 @@ app.get("/api/conversations", async (req, res) => {
 
 app.listen(3000, () => console.log("Server ready on port 3000."));
 
-module.exports = app;
+export default app;
