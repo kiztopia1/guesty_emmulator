@@ -243,8 +243,6 @@ app.get("/api/conversations", async (req, res) => {
   }
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-// Export the handler for Vercel
-export default app;
+app.listen(3000, () => console.log("Server ready on port 3001."));
+
+module.exports = app;
